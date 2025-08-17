@@ -28,6 +28,7 @@ package io.github.mzmine.modules.dataprocessing.featdet_massdetection.wavelet;
 import io.github.mzmine.datamodel.MassSpectrum;
 import io.github.mzmine.modules.dataprocessing.featdet_massdetection.MassDetector;
 import io.github.mzmine.parameters.ParameterSet;
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -184,18 +185,25 @@ public class FastWaveletMassDetector implements MassDetector {
 
     final int leftBound = wavelet.leftBound;
     final int rightBound = wavelet.rightBound;
+    final int lag = Math.abs(scaledESL) / 2;
+    int distanceLastNoNoisePoint = 0;
 
     for (int dx = 0; dx < length; dx++) {
       /*
-       If the intensity is below the set noise-level we skip calculating the wavelet, it is very unlikely that after
-       applying the wavelet this will become a peak
+       If the intensity is below the set noise-level and the last points were all noise we skip calculating the wavelet,
+       this points cannot become a peak because it is below the noiseLevel so nothing should be lost here.
+       This allows us to skip 90%+ of expensive calculations
        */
-      //TODO: check if this is allowed or we remove important points here
       double scanVal = scan.getIntensityValue(dx);
       if ((Double.compare(Math.abs(scanVal), noiseLevel) < 0)) {
-        mzs[dx] = scan.getMzValue(dx);
-        intensities[dx] = 0;
-        continue;
+        distanceLastNoNoisePoint++;
+        if (distanceLastNoNoisePoint > lag) {
+          mzs[dx] = scan.getMzValue(dx);
+          intensities[dx] = 0;
+          continue;
+        }
+      } else {
+        distanceLastNoNoisePoint = 0;
       }
 
       /* Compute wavelet boundaries */
@@ -237,8 +245,8 @@ public class FastWaveletMassDetector implements MassDetector {
    */
   private double[][] getMzPeaks(double[] mzs, double[] intensities, MassSpectrum scan) {
 
-    List<Double> detectedMzList = new ArrayList<>(1000);
-    List<Double> detectedIntensityList = new ArrayList<>(1000);
+    DoubleArrayList detectedMzList = new DoubleArrayList(1000);
+    DoubleArrayList detectedIntensityList = new DoubleArrayList(1000);
     int peakMaxInd = 0;
     double peakMaxValWavelet = 0;
     double peakMaxValScan = 0;
