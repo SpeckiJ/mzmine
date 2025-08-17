@@ -31,6 +31,7 @@ import io.github.mzmine.modules.dataprocessing.featdet_massdetection.exactmass.E
 import io.github.mzmine.modules.dataprocessing.featdet_massdetection.factor_of_lowest.FactorOfLowestMassDetector;
 import io.github.mzmine.modules.dataprocessing.featdet_massdetection.localmaxima.LocalMaxMassDetector;
 import io.github.mzmine.modules.dataprocessing.featdet_massdetection.recursive.RecursiveMassDetector;
+import io.github.mzmine.modules.dataprocessing.featdet_massdetection.wavelet.FastWaveletMassDetector;
 import io.github.mzmine.modules.dataprocessing.featdet_massdetection.wavelet.WaveletMassDetector;
 import io.github.mzmine.parameters.ParameterSet;
 import io.github.mzmine.parameters.parametertypes.submodules.ModuleOptionsEnum;
@@ -69,7 +70,11 @@ public enum MassDetectors implements ModuleOptionsEnum<MassDetector> {
   /**
    *
    */
-  WAVELET;
+  WAVELET,
+  /**
+   * WAVELET but faster
+   */
+  FASTWAVELET;
 
   @Override
   public Class<? extends MassDetector> getModuleClass() {
@@ -81,6 +86,7 @@ public enum MassDetectors implements ModuleOptionsEnum<MassDetector> {
       case LOCAL_MAX -> LocalMaxMassDetector.class;
       case RECURSIVE -> RecursiveMassDetector.class;
       case WAVELET -> WaveletMassDetector.class;
+      case FASTWAVELET -> FastWaveletMassDetector.class;
     };
   }
 
@@ -100,20 +106,21 @@ public enum MassDetectors implements ModuleOptionsEnum<MassDetector> {
       case LOCAL_MAX -> "Local maxima";
       case RECURSIVE -> "Recursive threshold";
       case WAVELET -> "Wavelet transform";
+      case FASTWAVELET -> "FastWavelet transform";
     };
   }
 
   public boolean usesCentroidData() {
     return switch (this) {
       case CENTROID, FACTOR_OF_LOWEST, AUTO -> true;
-      case EXACT, LOCAL_MAX, RECURSIVE, WAVELET -> false;
+      case EXACT, LOCAL_MAX, RECURSIVE, WAVELET, FASTWAVELET -> false;
     };
   }
 
   public boolean usesProfileData() {
     return switch (this) {
       case CENTROID -> false;
-      case EXACT, LOCAL_MAX, RECURSIVE, WAVELET, FACTOR_OF_LOWEST, AUTO -> true;
+      case EXACT, LOCAL_MAX, RECURSIVE, WAVELET, FASTWAVELET, FACTOR_OF_LOWEST, AUTO -> true;
     };
   }
 
