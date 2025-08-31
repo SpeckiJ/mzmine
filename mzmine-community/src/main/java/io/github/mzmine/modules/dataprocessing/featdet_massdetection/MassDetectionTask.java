@@ -32,16 +32,18 @@ import io.github.mzmine.datamodel.data_access.ScanDataAccess;
 import io.github.mzmine.datamodel.features.SimpleFeatureListAppliedMethod;
 import io.github.mzmine.datamodel.impl.SimpleFrame;
 import io.github.mzmine.datamodel.impl.masslist.SimpleMassList;
+import io.github.mzmine.modules.dataprocessing.featdet_massdetection.wavelet.SIMDWaveletMassDetector;
 import io.github.mzmine.parameters.ParameterSet;
 import io.github.mzmine.parameters.parametertypes.selectors.ScanSelection;
 import io.github.mzmine.taskcontrol.AbstractTask;
 import io.github.mzmine.taskcontrol.TaskStatus;
 import io.github.mzmine.util.MemoryMapStorage;
 import io.github.mzmine.util.scans.ScanUtils;
+import org.jetbrains.annotations.NotNull;
+
 import java.time.Instant;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jetbrains.annotations.NotNull;
 
 public class MassDetectionTask extends AbstractTask {
 
@@ -55,7 +57,7 @@ public class MassDetectionTask extends AbstractTask {
   private int processedScans = 0, totalScans = 0;
 
   public MassDetectionTask(RawDataFile dataFile, ParameterSet parameters,
-      MemoryMapStorage storageMemoryMap, @NotNull Instant moduleCallDate) {
+                           MemoryMapStorage storageMemoryMap, @NotNull Instant moduleCallDate) {
     super(storageMemoryMap, moduleCallDate);
 
     this.dataFile = dataFile;
@@ -93,52 +95,61 @@ public class MassDetectionTask extends AbstractTask {
 
       logger.info("Started mass detector on " + dataFile);
 
-      // uses only a single array for each (mz and intensity) to loop over all scans
-      ScanDataAccess data = EfficientDataAccess.of(dataFile, EfficientDataAccess.ScanDataType.RAW,
-          scanSelection);
-      totalScans = data.getNumberOfScans();
-
-      // all scans
-      while (data.hasNextScan()) {
-        if (isCanceled()) {
-          return;
+      if (detector instanceof SIMDWaveletMassDetector) {
+        for (Scan scan : dataFile.getScans()) {
+          var mzPeaks = detector.getMassValues(scan);
+          scan.addMassList(new SimpleMassList(getMemoryMapStorage(), mzPeaks));
+          processedScans++;
         }
+      } else {
 
-        Scan scan = data.nextScan();
-        assert scan != null;
+        // uses only a single array for each (mz and intensity) to loop over all scans
+        ScanDataAccess data = EfficientDataAccess.of(dataFile, EfficientDataAccess.ScanDataType.RAW,
+                scanSelection);
+        totalScans = data.getNumberOfScans();
 
-        double[][] mzPeaks;
-        if (scanTypes.applyTo(scan)) {
-          // run mass detection on data object
-          // [mzs, intensities]
-          mzPeaks = detector.getMassValues(data);
-
-          // denormalize scan intensities if injection time of trapped instrument was used.
-          // this is only done for MS2 because absolute intensities do not matter there
-          // MS1 needs to be normalized by injection time, which is already done during data acquisition
-          if (denormalizeMSnScans && scan.getMSLevel() > 1) {
-            ScanUtils.denormalizeIntensitiesMultiplyByInjectTime(mzPeaks[1],
-                scan.getInjectionTime());
+        // all scans
+        while (data.hasNextScan()) {
+          if (isCanceled()) {
+            return;
           }
 
-          // add mass list to scans and frames
-          scan.addMassList(new SimpleMassList(getMemoryMapStorage(), mzPeaks[0], mzPeaks[1]));
-        }
+          Scan scan = data.nextScan();
+          assert scan != null;
 
-        if (scan instanceof SimpleFrame frame && (scanTypes == SelectedScanTypes.MOBLITY_SCANS
-                                                  || scanTypes == SelectedScanTypes.SCANS)) {
-          // for ion mobility, detect subscans, too
-          frame.getMobilityScanStorage()
-              .generateAndAddMobilityScanMassLists(getMemoryMapStorage(), detector,
-                  denormalizeMSnScans);
-        }
+          double[][] mzPeaks;
+          if (scanTypes.applyTo(scan)) {
+            // run mass detection on data object
+            // [mzs, intensities]
+            mzPeaks = detector.getMassValues(data);
 
-        processedScans++;
+            // denormalize scan intensities if injection time of trapped instrument was used.
+            // this is only done for MS2 because absolute intensities do not matter there
+            // MS1 needs to be normalized by injection time, which is already done during data acquisition
+            if (denormalizeMSnScans && scan.getMSLevel() > 1) {
+              ScanUtils.denormalizeIntensitiesMultiplyByInjectTime(mzPeaks[1],
+                      scan.getInjectionTime());
+            }
+
+            // add mass list to scans and frames
+            scan.addMassList(new SimpleMassList(getMemoryMapStorage(), mzPeaks[0], mzPeaks[1]));
+          }
+
+          if (scan instanceof SimpleFrame frame && (scanTypes == SelectedScanTypes.MOBLITY_SCANS
+                  || scanTypes == SelectedScanTypes.SCANS)) {
+            // for ion mobility, detect subscans, too
+            frame.getMobilityScanStorage()
+                    .generateAndAddMobilityScanMassLists(getMemoryMapStorage(), detector,
+                            denormalizeMSnScans);
+          }
+
+          processedScans++;
+        }
       }
 
       dataFile.getAppliedMethods().add(
-          new SimpleFeatureListAppliedMethod(MassDetectionModule.class, parameters,
-              getModuleCallDate()));
+              new SimpleFeatureListAppliedMethod(MassDetectionModule.class, parameters,
+                      getModuleCallDate()));
     } catch (Exception e) {
       logger.log(Level.WARNING, "Error during mass detection, " + e.getMessage(), e);
       setErrorMessage(e.getMessage());

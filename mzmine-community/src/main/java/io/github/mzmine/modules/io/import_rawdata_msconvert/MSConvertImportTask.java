@@ -129,7 +129,7 @@ public class MSConvertImportTask extends AbstractTask implements RawDataImportTa
 //        "\"titleMaker <RunId>.<ScanNumber>.<ScanNumber>.<ChargeState> File:\"\"\"^<SourcePath^>\"\"\", NativeID:\"\"\"^<Id^>\"\"\"\""));
 
     cmdLine.add("--ignoreUnknownInstrumentError");
-    logger.finest("Running msconvert with command line: %s".formatted(cmdLine.toString()));
+    logger.severe("Running msconvert with command line: %s".formatted(cmdLine.toString()));
     return cmdLine;
   }
 

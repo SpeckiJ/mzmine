@@ -116,7 +116,7 @@ public abstract class AbstractStorableSpectrum extends AbstractMassSpectrum {
     updateMzRangeAndTICValues();
   }
 
-  MemorySegment getMzValues() {
+  public MemorySegment getMzValues() {
     if (mzValues == null) {
       return StorageUtils.EMPTY_DOUBLE_SEGMENT;
     } else {
@@ -124,7 +124,7 @@ public abstract class AbstractStorableSpectrum extends AbstractMassSpectrum {
     }
   }
 
-  MemorySegment getIntensityValues() {
+  public MemorySegment getIntensityValues() {
     if (intensityValues == null) {
       return StorageUtils.EMPTY_DOUBLE_SEGMENT;
     } else {

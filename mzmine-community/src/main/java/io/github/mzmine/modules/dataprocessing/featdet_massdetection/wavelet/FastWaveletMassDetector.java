@@ -29,10 +29,8 @@ import io.github.mzmine.datamodel.MassSpectrum;
 import io.github.mzmine.modules.dataprocessing.featdet_massdetection.MassDetector;
 import io.github.mzmine.parameters.ParameterSet;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+import jdk.incubator.vector.DoubleVector;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * This class implements the Continuous Wavelet Transform (CWT), Mexican Hat, over raw datapoints of
@@ -141,12 +139,46 @@ public class FastWaveletMassDetector implements MassDetector {
       double wstep = ((double) (WAVELET_ESR - WAVELET_ESL) / (double) NPOINTS);
       double[] W = new double[NPOINTS];
 
+      /*
+      double wstep4 = wstep * 4;
+      // c = 2 / ( sqrt(3) * pi^(1/4) )
+      double c = 0.8673250705840776;
+      double offset = WAVELET_ESL;
+
+
+      double[] W2 = new double[NPOINTS];
+
+      double[] ind = {1, 2, 3, 4};
+      DoubleVector indices = DoubleVector.fromArray(DoubleVector.SPECIES_PREFERRED, ind, 0);
+
+      for (int i = 0; i < DoubleVector.SPECIES_PREFERRED.loopBound(NPOINTS); i += DoubleVector.SPECIES_PREFERRED.length()) {
+        var x = indices.fma(wstep, offset).div(waveletWindow);
+        var x2half = x.mul(x).div(2);
+        DoubleVector factor1 = DoubleVector.broadcast(DoubleVector.SPECIES_PREFERRED, 1.0).sub(x2half);
+
+        DoubleVector finalVector = DoubleVector.broadcast(DoubleVector.SPECIES_PREFERRED, c).mul(factor1);
+        for (int j = 0; j < DoubleVector.SPECIES_PREFERRED.length(); j++) {
+          W[i+j] = finalVector.lane(j) * Math.exp(-x2half.lane(j));
+        }
+        offset += wstep4;
+      }
+      */
+
       double waveletIndex = WAVELET_ESL;
       for (int j = 0; j < NPOINTS; j++) {
         // precalculate the wavelet
         W[j] = cwtMEXHATreal(waveletIndex);
         waveletIndex += wstep;
       }
+
+      /*
+      for (int i = 0; i < NPOINTS; i++) {
+        if (Math.abs(W[i] - W2[i]) > 0.0001) {
+          System.out.println(i + " " + (W[i] - W2[i]));
+        }
+      }
+      */
+
 
       wavelet = new Wavelet(W);
       scaledESL = scaleLevel * WAVELET_ESL;
@@ -167,7 +199,7 @@ public class FastWaveletMassDetector implements MassDetector {
 
     x = x / waveletWindow;
     double x2 = x * x;
-    return c * (1.0 - x2) * Math.exp(-x2 / 2);
+    return c * (1.0 - x2/2) * Math.exp(-x2 / 2);
   }
 
   /**
@@ -177,6 +209,13 @@ public class FastWaveletMassDetector implements MassDetector {
    */
   private double[][] performCWT(MassSpectrum scan) {
     initCWT();
+
+    /*
+    for (int i = 0; i < scan.getNumberOfDataPoints(); i++) {
+      System.out.println(scan.getMzValue(i) + "  |  " + scan.getIntensityValue(i));
+    }
+     */
+
     int length = scan.getNumberOfDataPoints();
     double[] mzs = new double[length];
     double[] intensities = new double[length];
@@ -221,6 +260,7 @@ public class FastWaveletMassDetector implements MassDetector {
       double intensity = 0.0;
       for (int i = t1; i <= t2; i++) {
         int ind = (int) (baseOffset + (dPerScale * i));
+        System.out.println(ind);
         if (ind <= leftBound || ind >= rightBound) {
           // Our wavelet is always = 0 outside the bounds
           continue;
@@ -260,7 +300,7 @@ public class FastWaveletMassDetector implements MassDetector {
       double value = intensities[index];
       if (value == 0 && insidePeak) {
         // We had a peak before, but intensity is now 0 --> peak is finished, add to output if it is not noise
-        if (intensities[peakMaxInd] > noiseLevel) {
+        if (peakMaxValScan > noiseLevel) {
           detectedMzList.add(mzs[peakMaxInd]);
           detectedIntensityList.add(peakMaxValScan);
         }
@@ -295,7 +335,7 @@ public class FastWaveletMassDetector implements MassDetector {
 
     // Check that we finished
     if (insidePeak) {
-      if (intensities[peakMaxInd] > noiseLevel) {
+      if (peakMaxValScan > noiseLevel) {
         detectedMzList.add(mzs[peakMaxInd]);
         detectedIntensityList.add(peakMaxValScan);
       }
@@ -307,6 +347,10 @@ public class FastWaveletMassDetector implements MassDetector {
     for (int i = 0; i < detectedMzs.length; i++) {
       detectedMzs[i] = detectedMzList.get(i);
       detectedIntensities[i] = detectedIntensityList.get(i);
+    }
+
+    for (int i = 0; i < detectedMzs.length; i++) {
+      System.out.println(detectedMzs[i] + "  |  " + detectedIntensities[i]);
     }
     return new double[][]{detectedMzs, detectedIntensities};
   }

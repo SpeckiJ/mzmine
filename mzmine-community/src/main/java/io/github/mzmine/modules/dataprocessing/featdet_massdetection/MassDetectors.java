@@ -32,6 +32,7 @@ import io.github.mzmine.modules.dataprocessing.featdet_massdetection.factor_of_l
 import io.github.mzmine.modules.dataprocessing.featdet_massdetection.localmaxima.LocalMaxMassDetector;
 import io.github.mzmine.modules.dataprocessing.featdet_massdetection.recursive.RecursiveMassDetector;
 import io.github.mzmine.modules.dataprocessing.featdet_massdetection.wavelet.FastWaveletMassDetector;
+import io.github.mzmine.modules.dataprocessing.featdet_massdetection.wavelet.SIMDWaveletMassDetector;
 import io.github.mzmine.modules.dataprocessing.featdet_massdetection.wavelet.WaveletMassDetector;
 import io.github.mzmine.parameters.ParameterSet;
 import io.github.mzmine.parameters.parametertypes.submodules.ModuleOptionsEnum;

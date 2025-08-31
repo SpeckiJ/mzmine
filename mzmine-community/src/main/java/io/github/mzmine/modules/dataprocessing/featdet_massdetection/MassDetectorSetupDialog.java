@@ -58,7 +58,7 @@ public class MassDetectorSetupDialog extends ParameterSetupDialogWithScanPreview
     spectrumPlot.setPlotMode(SpectrumPlotType.fromScan(previewScan));
 
     spectrumPlot.removeAllDataSets();
-    spectrumPlot.addDataSet(spectraDataSet, previewScan.getDataFile().getColorAWT(), false, true);
+    // spectrumPlot.addDataSet(spectraDataSet, previewScan.getDataFile().getColorAWT(), false, true);
 
     // If there is some illegal value, do not load the preview but just exit
     ArrayList<String> errorMessages = new ArrayList<String>();

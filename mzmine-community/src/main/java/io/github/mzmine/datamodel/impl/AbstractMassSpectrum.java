@@ -174,9 +174,9 @@ public abstract class AbstractMassSpectrum implements MassSpectrum {
     }
   }
 
-  abstract MemorySegment getMzValues();
+  public abstract MemorySegment getMzValues();
 
-  abstract MemorySegment getIntensityValues();
+  public abstract MemorySegment getIntensityValues();
 
   @Override
   public Iterator<DataPoint> iterator() {

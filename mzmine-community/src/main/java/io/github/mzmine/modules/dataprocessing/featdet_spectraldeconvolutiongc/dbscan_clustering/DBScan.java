@@ -30,6 +30,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.ToDoubleFunction;
+import java.util.stream.Collectors;
+
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -98,21 +100,27 @@ public class DBScan<TVALUE> {
       clusters.add(cluster);
     }
 
+    int count = 0;
     // Step 3: handle border points that do not have enough neighbors to propagate itself
     for (DBScanValue1D<TVALUE> point : sorted) {
       // only work on border points
       if (point.getCluster() != -1) {
         continue;  // Skip already classified points
       }
+      count++;
 
+      //System.out.println("handling border point" + point.getValue() + point.getNeighbors().stream().map(p -> p.getValue()).collect(Collectors.toUnmodifiableList()));
       // border point with few neighbors
       // find neighbor that has the highest number of neighbors to put border point to dense area
       final DBScanValue1D<TVALUE> bestNeighbor = point.findDensestNeighbor();
       if (bestNeighbor != null && bestNeighbor.getCluster() > -1) {
         clusters.get(bestNeighbor.getCluster()).add(point.getParent());
+        //point.setCluster(bestNeighbor.getCluster());
+        //System.out.println("adding border point to cluster" + bestNeighbor.getValue());
       }
     }
 
+    // System.out.println("handling border points " + count);
     return clusters;
   }
 
