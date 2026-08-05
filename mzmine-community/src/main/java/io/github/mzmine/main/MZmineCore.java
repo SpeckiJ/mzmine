@@ -146,31 +146,18 @@ public final class MZmineCore {
     // so log state after load
     ProxyTestUtils.logProxyState("Auto proxy after config loading:");
 
-    // In GUI mode the user is restored asynchronously below. Capture the saved username now,
-    // before subscribing — the subscription fires immediately with user=null and would otherwise
-    // overwrite the saved preference with null before the async thread can read it.
-    final String savedUsername =
-        argsParser.isGuiMode() && argsParser.getUserFile() == null ? ConfigService.getPreference(
-            MZminePreferences.username) : null;
-
+    // Sync preferences with CurrentUserService->activeUser + Show warning if the currently active user is about to expire
     CurrentUserService.subscribe(user -> {
-      var nickname = user == null ? null : user.getNickname();
-      ConfigService.getPreferences().setParameter(MZminePreferences.username, nickname);
-
-      checkUserRemainingDays(user);
+      if (user != null) {
+        checkUserRemainingDays(user);
+        ConfigService.getPreferences().setParameter(MZminePreferences.username, user.getUsername());
+      }
     });
 
     addUserRequiredListener();
 
     // after loading the config and numCores
     TaskService.init(ConfigService.getConfiguration().getNumOfThreads());
-
-    // GUI mode: restore the previously active user on a virtual thread so that file I/O and
-    // optional network validation (every 5 days) do not block GUI startup.
-    if (savedUsername != null) {
-      Thread.ofVirtual().name("user-restore")
-          .start(() -> ArgsToConfigUtils.restoreUserFromConfig(savedUsername));
-    }
   }
 
   public static void checkUserRemainingDays(MZmineUser user) {

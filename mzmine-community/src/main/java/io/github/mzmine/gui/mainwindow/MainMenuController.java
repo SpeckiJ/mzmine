@@ -41,7 +41,6 @@ import io.github.mzmine.main.MZmineCore;
 import io.github.mzmine.modules.MZmineRunnableModule;
 import io.github.mzmine.modules.batchmode.ModuleQuickSelectDialog;
 import io.github.mzmine.modules.io.projectload.ProjectLoadModule;
-import io.github.mzmine.modules.io.projectload.ProjectOpeningTask;
 import io.github.mzmine.modules.tools.batchwizard.BatchWizardModule;
 import io.github.mzmine.modules.visualization.projectmetadata.ProjectMetadataTab;
 import io.github.mzmine.modules.visualization.spectra.msn_tree.MSnTreeVisualizerModule;
@@ -57,7 +56,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.time.Instant;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -312,7 +310,7 @@ public class MainMenuController {
   }
 
   public void openUserAccountConsole(final ActionEvent e) {
-    DesktopService.getDesktop().openWebPage(MzioMZmineLinks.USER_CONSOLE.getUrl());
+    DesktopService.getDesktop().openWebPage(MzioMZmineLinks.ACCOUNT_CONSOLE.getUrl());
   }
 
   public void showDefineIonLibraries(final ActionEvent e) {
