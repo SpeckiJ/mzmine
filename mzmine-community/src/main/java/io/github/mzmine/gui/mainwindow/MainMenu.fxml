@@ -658,7 +658,6 @@
       </accelerator>
     </MenuItem>
     <MenuItem text="Sign in / Sign up" onAction="#showUserSignUp"/>
-    <MenuItem text="Remove user" fx:id="itemRemoveUser" onAction="#removeLocalUser"/>
     <MenuItem text="Open users directory" onAction="#openUsersDirectory"/>
     <MenuItem text="Manage user online" onAction="#openUserAccountConsole"/>
   </Menu>

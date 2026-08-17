@@ -56,7 +56,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.property.ObjectProperty;
@@ -76,7 +75,6 @@ public class MainMenuController {
   private static final Logger logger = Logger.getLogger(MainMenuController.class.getName());
 
   public ObjectProperty<MZmineUser> currentUser = new SimpleObjectProperty<>();
-  public MenuItem itemRemoveUser;
 
   @FXML
   private Menu recentProjectsMenu;
@@ -88,10 +86,6 @@ public class MainMenuController {
     recentProjectsMenu.setDisable(true);
 
     CurrentUserService.subscribe(user -> currentUser.set(user));
-    itemRemoveUser.disableProperty().bind(currentUser.map(Objects::isNull));
-    itemRemoveUser.textProperty().bind(
-        currentUser.map(user -> "Remove user %s from local system".formatted(user.getNickname()))
-            .orElse("Remove user"));
   }
 
   public void closeProject(Event event) {
@@ -306,6 +300,7 @@ public class MainMenuController {
       Desktop desktop = Desktop.getDesktop();
       desktop.open(UserAuthStore.getUserPath());
     } catch (IOException e) {
+      logger.log(Level.SEVERE, "Error opening user directory", e);
     }
   }
 
