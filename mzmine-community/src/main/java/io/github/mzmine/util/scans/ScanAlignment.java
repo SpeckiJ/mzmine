@@ -147,7 +147,7 @@ public class ScanAlignment {
   public static List<DataPoint[]> alignOfSortedModAware(MZTolerance mzTol, DataPoint[] sortedA,
       List<DataPoint> sortedB, double precursorMzA, double precursorMzB) {
     // add all datapoints of sortedA to the aligned list
-    List<DataPoint[]> list = new ArrayList<>();
+    List<DataPoint[]> list = new ArrayList<>(sortedA.length);
     for (DataPoint dpa : sortedA) {
       // match or null
       DataPoint dpb = findMatchModAware(mzTol, dpa, sortedB, precursorMzA, precursorMzB);
