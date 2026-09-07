@@ -87,7 +87,7 @@ public class FeatureConvertors {
    *
    * @param chromatogram input ADAP chromatogram
    * @return output modular feature. Fragment scans are assigned by the caller, see
-   * {@link ScanUtils#findMS2FragmentScans(List, Range, Range)}
+   * {@link ScanUtils#findMS2FragmentScans(List, Range, Range, Comparator)}
    */
   static public ModularFeature ADAPChromatogramToModularFeature(ModularFeatureList featureList,
       RawDataFile dataFile, @NotNull ADAPChromatogram chromatogram) {

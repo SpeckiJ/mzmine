@@ -364,15 +364,17 @@ public class ModularADAPChromatogramBuilderTask extends AbstractTask {
         }
 
         // add to list
-        ModularFeature modular = FeatureConvertors.ADAPChromatogramToModularFeature(newFeatureList,
-            dataFile, chromatogram);
+        ModularFeature modular = FeatureConvertors.ADAPChromatogramToModularFeature(
+            newFeatureList, dataFile, chromatogram);
 
         // use wider mz range to group MS2 with chromatogram
         final Range<Double> ms2MzRange = mzTolerance.getToleranceRange(modular.getMZ())
             .span(modular.getRawDataPointsMZRange());
-        modular.setAllMS2FragmentScans(ScanUtils.findMS2FragmentScans(ms2Scans,
-                                                                      modular.getRawDataPointsRTRange(), ms2MzRange,
-                                                                      FragmentScanSorter.DEFAULT_TIC));
+        modular.setAllMS2FragmentScans(
+            ScanUtils.findMS2FragmentScans(ms2Scans,
+                                          modular.getRawDataPointsRTRange(),
+                                          ms2MzRange,
+                                          FragmentScanSorter.DEFAULT_TIC));
 
         ModularFeatureListRow newRow = new ModularFeatureListRow(newFeatureList, newFeatureID, modular);
         newFeatureList.addRow(newRow);

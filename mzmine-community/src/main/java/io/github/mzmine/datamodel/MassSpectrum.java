@@ -26,6 +26,7 @@
 package io.github.mzmine.datamodel;
 
 import com.google.common.collect.Range;
+import io.github.mzmine.datamodel.data_access.ScanDataAccess;
 import io.github.mzmine.datamodel.impl.SimpleMassSpectrum;
 import io.github.mzmine.util.collections.BinarySearch;
 import java.util.Arrays;
@@ -117,14 +118,16 @@ public interface MassSpectrum extends Iterable<DataPoint> {
    * Deprecated: Please use {@link MassSpectrum#getTICValue()} instead
    *
    */
+  @Deprecated
   @Nullable
   default Double getTIC() {
-    return getTICValue() != Double.NEGATIVE_INFINITY ? getTICValue() : null;
+    final double tic = getTICValue();
+    return tic != Double.NEGATIVE_INFINITY ? tic : null;
   }
 
   /**
-   * @return The sum of intensities of all data points or null if the spectrum has 0 data points.
-   * Double.NEGATIVE_INFINITY if there is no value
+   * @return The sum of intensities of all data points. 0 for an empty spectrum.
+   * Double.NEGATIVE_INFINITY if no value is available at all, e.g. {@link ScanDataAccess} without a datasource.
    */
   double getTICValue();
 

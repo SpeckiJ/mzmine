@@ -81,7 +81,7 @@ public class BuildingMzMLMsScan extends MetadataOnlyScan {
   private Float retentionTime;
   private Range<Double> mzRange;
   private Range<Double> mzScanWindowRange;
-  private double tic = Double.NaN;
+  private double tic = Double.NEGATIVE_INFINITY;
 
   // temporary - set to null after load
   private MzMLBinaryDataInfo mzBinaryDataInfo;

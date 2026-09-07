@@ -845,7 +845,7 @@ public class ScanUtils {
   /**
    * Finds all MS/MS scans on MS2 level within given retention time range and with precursor m/z
    * within given m/z range.
-   * Note: If iterating over many/all ranges, {@link listMS2ScansSortedByPrecursorMz(RawDataFile)} should be used.
+   * Note: If iterating over many/all ranges, {@link #listMS2ScansSortedByPrecursorMz(RawDataFile)} should be used.
    *
    * @return stream sorted by default sorting (highest TIC)
    */
@@ -916,12 +916,12 @@ public class ScanUtils {
     final float rtRangeMin = rtRange != null ? rtRange.lowerEndpoint() : Float.NEGATIVE_INFINITY;
     final float rtRangeMax = rtRange != null ? rtRange.upperEndpoint() : Float.POSITIVE_INFINITY;
 
-    final List<Scan> matches = new ArrayList<>();
-    for (Scan scan : BinarySearch.indexRange(mzRange, ms2SortedByPrecursorMz,Scan::getPrecursorMzRaw)
-          .sublist(ms2SortedByPrecursorMz)) {
-      // written as >= && <= on purpose -> filters out Double.NaN
+    List<Scan> matchingScans = BinarySearch.indexRange(mzRange, ms2SortedByPrecursorMz, Scan::getPrecursorMzRaw)
+        .sublist(ms2SortedByPrecursorMz);
+    final List<Scan> matches = new ArrayList<>(matchingScans.size());
+    for (Scan scan : matchingScans) {
       final float rt = scan.getRetentionTime();
-      if (rt >= rtRangeMin && rt <= rtRangeMax) {
+      if (rtRangeMin <= rt && rt <= rtRangeMax) {
         matches.add(scan);
       }
     }
@@ -935,6 +935,10 @@ public class ScanUtils {
    * Checks if scan precursor mz and rt is in ranges
    *
    * @param s tested scan
+   * @param rtRangeMin minimum RT
+   * @param rtRangeMax maximum RT
+   * @param mzRangeMin minimum MZ
+   * @param mzRangeMax maximum MZ
    * @return true if scan precursor mz is in range and rt
    */
   private static boolean matchesMS2Scan(Scan s,
@@ -943,8 +947,7 @@ public class ScanUtils {
       double mzRangeMin,
       double mzRangeMax) {
     final float rt = s.getRetentionTime();
-    // Double.NaN (no rt time set) will pass this
-    if (!(rt >= rtRangeMin && rt <= rtRangeMax)) {
+    if (rt < rtRangeMin || rt > rtRangeMax) {
       return false;
     }
     final double precursorMz = s.getPrecursorMzRaw();
