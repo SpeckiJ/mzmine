@@ -60,8 +60,11 @@ import io.github.mzmine.util.MemoryMapStorage;
 import io.github.mzmine.util.SortingDirection;
 import io.github.mzmine.util.SortingProperty;
 import io.github.mzmine.util.exceptions.MissingMassListException;
+import io.github.mzmine.util.scans.FragmentScanSorter;
+import io.github.mzmine.util.scans.ScanUtils;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import static java.util.Objects.requireNonNullElse;
@@ -338,6 +341,9 @@ public class ModularADAPChromatogramBuilderTask extends AbstractTask {
     // ensure that the default columns are available
     DataTypeUtils.addDefaultChromatographicTypeColumns(newFeatureList);
 
+    // MS2 scans sorted by precursor m/z
+    final List<Scan> ms2Scans = ScanUtils.listMS2ScansSortedByPrecursorMz(dataFile);
+
     int newFeatureID = 1;
     // add chromatograms that match criteria
     for (ADAPChromatogram chromatogram : finalRangeMap.values()) {
@@ -359,9 +365,16 @@ public class ModularADAPChromatogramBuilderTask extends AbstractTask {
 
         // add to list
         ModularFeature modular = FeatureConvertors.ADAPChromatogramToModularFeature(newFeatureList,
-            dataFile, chromatogram, mzTolerance);
-        ModularFeatureListRow newRow = new ModularFeatureListRow(newFeatureList, newFeatureID,
-            modular);
+            dataFile, chromatogram);
+
+        // use wider mz range to group MS2 with chromatogram
+        final Range<Double> ms2MzRange = mzTolerance.getToleranceRange(modular.getMZ())
+            .span(modular.getRawDataPointsMZRange());
+        modular.setAllMS2FragmentScans(ScanUtils.findMS2FragmentScans(ms2Scans,
+                                                                      modular.getRawDataPointsRTRange(), ms2MzRange,
+                                                                      FragmentScanSorter.DEFAULT_TIC));
+
+        ModularFeatureListRow newRow = new ModularFeatureListRow(newFeatureList, newFeatureID, modular);
         newFeatureList.addRow(newRow);
         // activate shape for this row
         if (!isImaging) {

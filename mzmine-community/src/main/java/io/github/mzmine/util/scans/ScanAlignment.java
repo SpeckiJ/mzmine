@@ -251,15 +251,28 @@ public class ScanAlignment {
    */
   private static DataPoint findMatchModAware(MZTolerance mzTol, DataPoint dpa,
       List<DataPoint> sortedB, double precursorMzA, double precursorMzB) {
-    double deltaMZ = precursorMzB - precursorMzA;
-    for (DataPoint dpb : sortedB) {
+    final double deltaMZ = precursorMzB - precursorMzA;
+    final double mzA = dpa.getMZ();
+    final double mzAShifted = mzA + deltaMZ;
+    final double ppmTolerance = mzTol.getPpmTolerance();
+    final double mzToleranceAbsolute = mzTol.getMzTolerance();
+    // We roll our own checkWithinTolerance() here to precompute as much as possible.
+    final double mzToleranceRelativeA = mzA / 1_000_000.0 * ppmTolerance;
+    final double mzToleranceRelativeB = mzAShifted / 1_000_000.0 * ppmTolerance;
+    for (int i = 0; i < sortedB.size(); i++) {
+      final DataPoint dpb = sortedB.get(i);
       // TODO how to handle cases where we have both the direct fragment and the modified fragment
-      // as in shifted by the precursor m/z
-      // currently we just use the one with the highest intensity
-      if (mzTol.checkWithinTolerance(dpa.getMZ(), dpb.getMZ()) ||
-          mzTol.checkWithinTolerance(dpa.getMZ() + deltaMZ, dpb.getMZ())) {
+      // as in shifted by the precursor m/z currently we just use the first one we find
+
+      final double distA = Math.abs(mzA - dpb.getMZ());
+      final double distB = Math.abs(mzAShifted - dpb.getMZ());
+
+      if (distA <= mzToleranceAbsolute
+          || distA <= mzToleranceRelativeA
+          || distB <= mzToleranceAbsolute
+          || distB <= mzToleranceRelativeB) {
         // remove from list and return
-        sortedB.remove(dpb);
+        sortedB.remove(i);
         return dpb;
       }
     }

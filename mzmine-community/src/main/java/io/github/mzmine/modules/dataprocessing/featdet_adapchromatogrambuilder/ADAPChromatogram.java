@@ -61,6 +61,10 @@ public class ADAPChromatogram {
     return dataPointsMap.values();
   }
 
+  public TreeMap<Scan, DataPoint> getDataPointsMap() {
+    return dataPointsMap;
+  }
+
 
   /**
    * Check for a minimum number of continuous scans

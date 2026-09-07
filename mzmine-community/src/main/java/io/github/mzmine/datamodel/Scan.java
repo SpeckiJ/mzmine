@@ -183,6 +183,16 @@ public interface Scan extends MassSpectrum, Comparable<Scan> {
     return getMsMsInfo() instanceof DDAMsMsInfo info ? info.getIsolationMz() : null;
   }
 
+  /**
+   * Primitive variant of {@link #getPrecursorMz()}.
+   *
+   * @return The precursor mz, or {@link Double#NaN} if this scan has no single
+   * {@link DDAMsMsInfo} (e.g. DIA scans where {@link Frame#getImsMsMsInfos()} needs to be used.
+   */
+  default double getPrecursorMzRaw() {
+    return getMsMsInfo() instanceof DDAMsMsInfo info ? info.getIsolationMz() : Double.NaN;
+  }
+
   @NotNull PolarityType getPolarity();
 
   @Nullable MassList getMassList();
