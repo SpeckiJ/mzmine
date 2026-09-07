@@ -258,9 +258,10 @@ public class MergedSpectrum implements MassSpectrum {
   }
 
   /**
+   * TODO: this could be calculated once and then reused
    * @return calculate the total ion count of this merged spectrum
    */
-  public Double getTIC() {
+  public double getTICValue() {
     double tic = 0d;
     for (MergedDataPoint p : data) {
       tic += p.intensity;

@@ -205,9 +205,8 @@ public class CachedFrame implements Frame {
         "Not intended. This frame is used for visualisation only");
   }
 
-  @Nullable
   @Override
-  public Double getTIC() {
+  public double getTICValue() {
     throw new UnsupportedOperationException(
         "Not intended. This frame is used for visualisation only");
   }

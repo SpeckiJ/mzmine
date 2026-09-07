@@ -124,10 +124,9 @@ public class LipidSpectrumProvider implements PlotXYDataProvider {
         return null;
       }
 
-      @Nullable
       @Override
-      public Double getTIC() {
-        return null;
+      public double getTICValue() {
+        return Double.NEGATIVE_INFINITY;
       }
 
       @NotNull

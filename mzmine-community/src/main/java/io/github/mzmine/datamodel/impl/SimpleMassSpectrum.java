@@ -45,7 +45,7 @@ public class SimpleMassSpectrum implements MassSpectrum {
   private final MassSpectrumType spectrumType;
   private int basePeakIndex = -1;
   private Range<Double> mzRange = null;
-  private Double tic = null;
+  private double tic = Double.NaN;
 
   public SimpleMassSpectrum(double[] mzValues, double[] intensityValues) {
     this(mzValues, intensityValues, MassSpectrumType.CENTROIDED);
@@ -133,10 +133,9 @@ public class SimpleMassSpectrum implements MassSpectrum {
     return mzRange;
   }
 
-  @Nullable
   @Override
-  public Double getTIC() {
-    if (tic == null) {
+  public double getTICValue() {
+    if (Double.isNaN(tic)) {
       tic = Arrays.stream(intensityValues).sum();
     }
 

@@ -128,8 +128,8 @@ public class LibraryEntryWrappedScan implements Scan {
   }
 
   @Override
-  public @Nullable Double getTIC() {
-    return entry.getTIC();
+  public double getTICValue() {
+    return entry.getTICValue();
   }
 
   @Override
