@@ -26,6 +26,8 @@
 package io.github.mzmine.modules.dataprocessing.featdet_adapchromatogrambuilder;
 
 
+import static java.util.Objects.requireNonNullElse;
+
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeMap;
 import com.google.common.collect.TreeRangeMap;
@@ -67,7 +69,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import static java.util.Objects.requireNonNullElse;
 import java.util.logging.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -197,9 +198,9 @@ public class ModularADAPChromatogramBuilderTask extends AbstractTask {
         setStatus(TaskStatus.ERROR);
         final String msg =
             "Retention time of scan #" + s.getScanNumber() + " in file " + dataFile.getName()
-            + " is smaller then the retention time of the previous scan."
-            + " Please make sure you only use scans with increasing retention times."
-            + " You can restrict the scan numbers in the parameters, or you can use the Crop filter module";
+                + " is smaller then the retention time of the previous scan."
+                + " Please make sure you only use scans with increasing retention times."
+                + " You can restrict the scan numbers in the parameters, or you can use the Crop filter module";
         setErrorMessage(msg);
         return;
       }
@@ -217,8 +218,8 @@ public class ModularADAPChromatogramBuilderTask extends AbstractTask {
       if (level != scans[i].getMSLevel()) {
         DesktopService.getDesktop().displayMessage(null,
             "mzmine thinks that you are running ADAP Chromatogram builder on both MS1- and MS2-scans. "
-            + "This will likely produce wrong results. "
-            + "Please, set the scan filter parameter to a specific MS level");
+                + "This will likely produce wrong results. "
+                + "Please, set the scan filter parameter to a specific MS level");
         break;
       }
       if (pol != scans[i].getPolarity()) {
@@ -372,11 +373,12 @@ public class ModularADAPChromatogramBuilderTask extends AbstractTask {
             .span(modular.getRawDataPointsMZRange());
         modular.setAllMS2FragmentScans(
             ScanUtils.findMS2FragmentScans(ms2Scans,
-                                          modular.getRawDataPointsRTRange(),
-                                          ms2MzRange,
-                                          FragmentScanSorter.DEFAULT_TIC));
+                modular.getRawDataPointsRTRange(),
+                ms2MzRange,
+                FragmentScanSorter.DEFAULT_TIC));
 
-        ModularFeatureListRow newRow = new ModularFeatureListRow(newFeatureList, newFeatureID, modular);
+        ModularFeatureListRow newRow = new ModularFeatureListRow(newFeatureList, newFeatureID,
+            modular);
         newFeatureList.addRow(newRow);
         // activate shape for this row
         if (!isImaging) {

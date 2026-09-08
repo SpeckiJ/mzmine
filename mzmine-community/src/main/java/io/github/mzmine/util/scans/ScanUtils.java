@@ -26,6 +26,7 @@
 package io.github.mzmine.util.scans;
 
 import static io.github.mzmine.util.spectraldb.entry.DBEntryField.MERGED_SPEC_TYPE;
+import static java.util.Comparator.comparingDouble;
 import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsLast;
 import static java.util.Objects.requireNonNullElse;
@@ -844,8 +845,8 @@ public class ScanUtils {
 
   /**
    * Finds all MS/MS scans on MS2 level within given retention time range and with precursor m/z
-   * within given m/z range.
-   * Note: If iterating over many/all ranges, {@link #listMS2ScansSortedByPrecursorMz(RawDataFile)} should be used.
+   * within given m/z range. Note: If iterating over many/all ranges,
+   * {@link #listMS2ScansSortedByPrecursorMz(RawDataFile)} should be used.
    *
    * @return stream sorted by default sorting (highest TIC)
    */
@@ -855,8 +856,8 @@ public class ScanUtils {
   }
 
   /**
-   * Finds all MS/MS scans on MS2 level within given retention time range (if given)
-   * and with precursor m/z within given m/z range. Applies sorting if sorter is not null
+   * Finds all MS/MS scans on MS2 level within given retention time range (if given) and with
+   * precursor m/z within given m/z range. Applies sorting if sorter is not null
    *
    * @param sorter sorted stream see {@link FragmentScanSorter}. Unsorted if null
    * @return sorted stream
@@ -886,26 +887,28 @@ public class ScanUtils {
   }
 
   /**
-   * Gets all MS2 level scans, sorted ascending by {@link Scan#getPrecursorMzRaw()}
+   * Gets all MS2 level scans, sorted ascending by {@link Scan#getPrecursorMz()}
    *
    * @return immutable list.
    */
   public static @NotNull List<Scan> listMS2ScansSortedByPrecursorMz(
       @NotNull final RawDataFile dataFile) {
     return dataFile.stream()
-        .filter(s -> s.getMSLevel() == 2 && !Double.isNaN(s.getPrecursorMzRaw()))
-        .sorted(Comparator.comparingDouble(Scan::getPrecursorMzRaw)).toList();
+        .filter(s -> s.getMSLevel() == 2 && s.getPrecursorMz() != null)
+        .sorted(comparingDouble(Scan::getPrecursorMz)).toList();
   }
 
   /**
    * Finds all MS/MS scans on MS2 level within given retention time range and with precursor m/z
    * within given m/z range (and potentially sorts them).
    *
-   * @param ms2SortedByPrecursorMz List of Scans sorted ascending by precursor mz, can e.g. be obtained by
-   *                                {@link #listMS2ScansSortedByPrecursorMz(RawDataFile)}
+   * @param ms2SortedByPrecursorMz List of Scans sorted ascending by precursor mz, can e.g. be
+   *                               obtained by
+   *                               {@link #listMS2ScansSortedByPrecursorMz(RawDataFile)}
    * @param rtRange                both bounds inclusive, null to not filter by rt
    * @param mzRange                precursor m/z window, both bounds inclusive
-   * @param sorter                 see {@link FragmentScanSorter}. Left in ascending precursor m/z order if null
+   * @param sorter                 see {@link FragmentScanSorter}. Left in ascending precursor m/z
+   *                               order if null
    * @return a new mutable list, empty if nothing matches
    */
   public static @NotNull List<Scan> findMS2FragmentScans(
@@ -916,8 +919,8 @@ public class ScanUtils {
     final float rtRangeMin = rtRange != null ? rtRange.lowerEndpoint() : Float.NEGATIVE_INFINITY;
     final float rtRangeMax = rtRange != null ? rtRange.upperEndpoint() : Float.POSITIVE_INFINITY;
 
-    List<Scan> matchingScans = BinarySearch.indexRange(mzRange, ms2SortedByPrecursorMz, Scan::getPrecursorMzRaw)
-        .sublist(ms2SortedByPrecursorMz);
+    List<Scan> matchingScans = BinarySearch.indexRange(mzRange, ms2SortedByPrecursorMz,
+            Scan::getPrecursorMz).sublist(ms2SortedByPrecursorMz);
     final List<Scan> matches = new ArrayList<>(matchingScans.size());
     for (Scan scan : matchingScans) {
       final float rt = scan.getRetentionTime();
@@ -934,7 +937,7 @@ public class ScanUtils {
   /**
    * Checks if scan precursor mz and rt is in ranges
    *
-   * @param s tested scan
+   * @param s          tested scan
    * @param rtRangeMin minimum RT
    * @param rtRangeMax maximum RT
    * @param mzRangeMin minimum MZ
@@ -950,7 +953,7 @@ public class ScanUtils {
     if (rt < rtRangeMin || rt > rtRangeMax) {
       return false;
     }
-    final double precursorMz = s.getPrecursorMzRaw();
+    final double precursorMz = s.getPrecursorMz();
     return precursorMz >= mzRangeMin && precursorMz <= mzRangeMax;
   }
 
