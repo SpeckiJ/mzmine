@@ -887,15 +887,16 @@ public class ScanUtils {
   }
 
   /**
-   * Gets all MS2 level scans, sorted ascending by {@link Scan#getPrecursorMz()}
+   * Gets all MS2 level scans, sorted ascending by {@link Scan#getPrecursorMz()} (nulls last).
    *
    * @return immutable list.
    */
   public static @NotNull List<Scan> listMS2ScansSortedByPrecursorMz(
       @NotNull final RawDataFile dataFile) {
     return dataFile.stream()
-        .filter(s -> s.getMSLevel() == 2 && s.getPrecursorMz() != null)
-        .sorted(comparingDouble(Scan::getPrecursorMz)).toList();
+        .filter(s -> s.getMSLevel() == 2)
+        .sorted(Comparator.comparing(Scan::getPrecursorMz, nullsLast(naturalOrder())))
+        .toList();
   }
 
   /**
