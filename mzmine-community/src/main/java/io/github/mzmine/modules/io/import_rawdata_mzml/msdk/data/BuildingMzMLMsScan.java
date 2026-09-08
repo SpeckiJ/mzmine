@@ -220,10 +220,6 @@ public class BuildingMzMLMsScan extends MetadataOnlyScan {
       throw new UnsupportedOperationException(
           "No data yet. Call load method to load data and memory map the scan.");
     }
-    if (tic != null) {
-      return tic;
-    }
-    tic = Arrays.stream(getIntensityValues(new double[getNumberOfDataPoints()])).sum();
     return tic;
   }
 
