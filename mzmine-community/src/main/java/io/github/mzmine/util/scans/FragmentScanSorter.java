@@ -25,8 +25,9 @@
 
 package io.github.mzmine.util.scans;
 
-import static java.util.Comparator.comparingDouble;
 import static java.util.Comparator.comparingInt;
+import static java.util.Comparator.nullsLast;
+import static java.util.Comparator.reverseOrder;
 
 import io.github.mzmine.datamodel.Scan;
 import java.util.Comparator;
@@ -42,16 +43,16 @@ public abstract class FragmentScanSorter {
    * MS1>MS2>MS3 then highest TIC then highest number of data points
    */
   public static final Comparator<Scan> DEFAULT_TIC = comparingInt(Scan::getMSLevel) //
-      .thenComparing(comparingDouble(Scan::getTICValue).reversed())
-      .thenComparing(comparingInt(Scan::getNumberOfDataPoints).reversed());
+      .thenComparing(Scan::getTIC, nullsLast(reverseOrder()))
+      .thenComparing(Scan::getNumberOfDataPoints, reverseOrder());
 
   /**
    * MS1>MS2>MS3 then highest number of data points then highest TIC
    */
-  public static final Comparator<Scan> DEFAULT_NUMBER_OF_DATA_POINTS = //
-      comparingInt(Scan::getMSLevel)
-          .thenComparing(comparingInt(Scan::getNumberOfDataPoints).reversed())
-          .thenComparing(comparingDouble(Scan::getTICValue).reversed());
+  public static final Comparator<Scan> DEFAULT_NUMBER_OF_DATA_POINTS = comparingInt(
+      Scan::getMSLevel) //
+      .thenComparing(Scan::getNumberOfDataPoints, reverseOrder())
+      .thenComparing(Scan::getTIC, nullsLast(reverseOrder()));
 
 
 }

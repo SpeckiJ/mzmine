@@ -46,7 +46,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public interface MassSpectrum extends Iterable<DataPoint> {
 
-  MassSpectrum EMPTY = new SimpleMassSpectrum(new double[0], new double[0]);
+  MassSpectrum EMPTY =  new SimpleMassSpectrum(new double[0], new double[0]);
 
   /**
    * @return Number of m/z and intensity data points. This corresponds to the capacity of the
@@ -115,21 +115,11 @@ public interface MassSpectrum extends Iterable<DataPoint> {
   @Nullable Range<Double> getDataPointMZRange();
 
   /**
-   * Deprecated: Please use {@link MassSpectrum#getTICValue()} instead
-   *
+   * @return The sum of intensities of all data points.
+   * 0 or null if the spectrum has no data points.
    */
-  @Deprecated
-  @Nullable
-  default Double getTIC() {
-    final double tic = getTICValue();
-    return tic != Double.NEGATIVE_INFINITY ? tic : null;
-  }
+  @Nullable Double getTIC();
 
-  /**
-   * @return The sum of intensities of all data points. 0 for an empty spectrum.
-   * Double.NEGATIVE_INFINITY if no value is available at all, e.g. {@link ScanDataAccess} without a datasource.
-   */
-  double getTICValue();
 
   /**
    * Searches for the given mz value - or the closest available signal in this spectrum. Copied from

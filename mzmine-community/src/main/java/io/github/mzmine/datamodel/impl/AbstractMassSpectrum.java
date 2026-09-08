@@ -122,7 +122,7 @@ public abstract class AbstractMassSpectrum implements MassSpectrum {
   }
 
   @Override
-  public double getTICValue() {
+  public @NotNull Double getTIC() {
     return totalIonCurrent;
   }
 

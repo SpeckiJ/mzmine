@@ -181,8 +181,8 @@ public class MultiChargeStateIsotopePattern implements IsotopePattern {
   }
 
   @Override
-  public double getTICValue() {
-    return getPreferredIsotopePattern().getTICValue();
+  public @NotNull Double getTIC() {
+    return getPreferredIsotopePattern().getTIC();
   }
 
   @Override

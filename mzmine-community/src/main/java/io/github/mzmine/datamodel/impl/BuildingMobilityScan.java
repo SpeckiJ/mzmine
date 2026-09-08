@@ -182,8 +182,9 @@ public class BuildingMobilityScan implements MobilityScan {
     throw new UnsupportedOperationException("Not supported by " + this.getClass().getName());
   }
 
+  @Nullable
   @Override
-  public double getTICValue() {
+  public Double getTIC() {
     throw new UnsupportedOperationException("Not supported by " + this.getClass().getName());
   }
 

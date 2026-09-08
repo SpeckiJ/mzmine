@@ -187,7 +187,7 @@ public class SimpleIsotopePattern implements IsotopePattern {
   }
 
   @Override
-  public double getTICValue() {
+  public @NotNull Double getTIC() {
     return tic;
   }
 

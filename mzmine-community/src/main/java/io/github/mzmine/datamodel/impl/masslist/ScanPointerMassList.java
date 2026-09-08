@@ -126,9 +126,10 @@ public class ScanPointerMassList implements MassList {
     return scan.getDataPointMZRange();
   }
 
+  @Nullable
   @Override
-  public double getTICValue() {
-    return scan.getTICValue();
+  public Double getTIC() {
+    return scan.getTIC();
   }
 
   @NotNull

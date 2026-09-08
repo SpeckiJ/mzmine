@@ -203,7 +203,7 @@ public class CachedIMSFrame implements Frame {
   }
 
   @Override
-  public double getTICValue() {
+  public @Nullable Double getTIC() {
     throw new UnsupportedOperationException("Unsupported during project load.");
   }
 

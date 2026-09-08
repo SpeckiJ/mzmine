@@ -118,9 +118,10 @@ public class MassSpectrumProvider implements PlotXYDataProvider {
         return null;
       }
 
+      @Nullable
       @Override
-      public double getTICValue() {
-        return Double.NEGATIVE_INFINITY;
+      public Double getTIC() {
+        return null;
       }
 
       @NotNull

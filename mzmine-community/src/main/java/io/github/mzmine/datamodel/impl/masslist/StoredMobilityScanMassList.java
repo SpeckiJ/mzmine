@@ -121,8 +121,9 @@ public class StoredMobilityScanMassList implements MassList {
         : Range.singleton(getNumberOfDataPoints() == 0 ? 0d : getMzValue(0));
   }
 
+  @Nullable
   @Override
-  public double getTICValue() {
+  public Double getTIC() {
     throw new UnsupportedOperationException("Intentionally unimplemented to safe RAM.");
   }
 

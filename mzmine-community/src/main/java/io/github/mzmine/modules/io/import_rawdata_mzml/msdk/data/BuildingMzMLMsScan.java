@@ -81,7 +81,7 @@ public class BuildingMzMLMsScan extends MetadataOnlyScan {
   private Float retentionTime;
   private Range<Double> mzRange;
   private Range<Double> mzScanWindowRange;
-  private double tic = Double.NEGATIVE_INFINITY;
+  private Double tic;
 
   // temporary - set to null after load
   private MzMLBinaryDataInfo mzBinaryDataInfo;
@@ -215,11 +215,15 @@ public class BuildingMzMLMsScan extends MetadataOnlyScan {
   }
 
   @Override
-  public double getTICValue() {
+  public @Nullable Double getTIC() {
     if (intensityValues == null) {
       throw new UnsupportedOperationException(
           "No data yet. Call load method to load data and memory map the scan.");
     }
+    if (tic != null) {
+      return tic;
+    }
+    tic = Arrays.stream(getIntensityValues(new double[getNumberOfDataPoints()])).sum();
     return tic;
   }
 
