@@ -215,7 +215,7 @@ public class BuildingMzMLMsScan extends MetadataOnlyScan {
   }
 
   @Override
-  public @Nullable Double getTIC() {
+  public double getTIC() {
     if (intensityValues == null) {
       throw new UnsupportedOperationException(
           "No data yet. Call load method to load data and memory map the scan.");
