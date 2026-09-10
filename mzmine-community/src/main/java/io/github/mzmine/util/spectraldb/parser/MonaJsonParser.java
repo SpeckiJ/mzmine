@@ -37,6 +37,7 @@ import jakarta.json.JsonArray;
 import jakarta.json.JsonNumber;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonReader;
+import jakarta.json.JsonReaderFactory;
 import jakarta.json.JsonString;
 import jakarta.json.JsonValue;
 import jakarta.json.JsonValue.ValueType;
@@ -66,6 +67,8 @@ import org.jetbrains.annotations.Nullable;
 public class MonaJsonParser extends SpectralDBTextParser {
 
   private static final String COMPOUND = "compound", MONA_ID = "id", META_DATA = "metaData", SPECTRUM = "spectrum", SPLASH = "splash", SUBMITTER = "submitter";
+
+  private static final JsonReaderFactory READER_FACTORY = Json.createReaderFactory(null);
 
   private static final Logger logger = Logger.getLogger(MonaJsonParser.class.getName());
 
@@ -157,7 +160,7 @@ public class MonaJsonParser extends SpectralDBTextParser {
   @Nullable
   private SpectralLibraryEntry parseToEntry(LibraryParsingErrors errors, SpectralLibrary library,
       String line) {
-    try (JsonReader reader = Json.createReader(new StringReader(line))) {
+    try (JsonReader reader = READER_FACTORY.createReader(new StringReader(line))) {
       JsonObject json = reader.readObject();
       return getDBEntry(errors, library, json);
     }
