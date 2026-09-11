@@ -91,7 +91,7 @@ public class ScanAlignment {
   public static List<DataPoint[]> alignOfSorted(MZTolerance mzTol, DataPoint[] sortedA,
       List<DataPoint> sortedB) {
     // add all datapoints of sortedA to the aligned list
-    List<DataPoint[]> list = new ArrayList<>();
+    ArrayList<DataPoint[]> list = new ArrayList<>(sortedA.length);
     for (DataPoint dpa : sortedA) {
       // match or null
       DataPoint dpb = findMatch(mzTol, dpa, sortedB);
@@ -99,6 +99,7 @@ public class ScanAlignment {
     }
 
     // insert all remaining DP from sorted b
+    list.ensureCapacity(list.size() + sortedB.size());
     for (DataPoint dp : sortedB) {
       list.add(new DataPoint[]{null, dp});
     }
@@ -147,7 +148,7 @@ public class ScanAlignment {
   public static List<DataPoint[]> alignOfSortedModAware(MZTolerance mzTol, DataPoint[] sortedA,
       List<DataPoint> sortedB, double precursorMzA, double precursorMzB) {
     // add all datapoints of sortedA to the aligned list
-    List<DataPoint[]> list = new ArrayList<>(sortedA.length);
+    ArrayList<DataPoint[]> list = new ArrayList<>(sortedA.length);
     for (DataPoint dpa : sortedA) {
       // match or null
       DataPoint dpb = findMatchModAware(mzTol, dpa, sortedB, precursorMzA, precursorMzB);
@@ -155,6 +156,7 @@ public class ScanAlignment {
     }
 
     // insert all remaining DP from sorted b
+    list.ensureCapacity(list.size() + sortedB.size());
     for (DataPoint dp : sortedB) {
       list.add(new DataPoint[]{null, dp});
     }
@@ -182,7 +184,6 @@ public class ScanAlignment {
     double max = intersect.upperEndpoint();
     max = mzTol.getToleranceRange(max).upperEndpoint();
     return Range.closed(min, max);
-
   }
 
   /**
